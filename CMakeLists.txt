@@ -25,6 +25,11 @@ SET (REFPROP_FORTRAN_PATH
         CACHE STRING
         "The path to the directory of the FORTRAN source files")
 
+	SET (REFPROP_SOURCE_AUTOFIX
+		TRUE
+		CACHE BOOL
+		"Automatically fix REFPROP 9.1.0 case sensitivity filenames")
+
 # Determine the name of the shared library we are going to produce
 # On windows, the name depends on the bitness, on linux/OSX it is always refprop
 if (UNIX)
@@ -164,45 +169,49 @@ endif()
 # Collect the source files from the specifed location
 file(GLOB APP_SOURCES "${REFPROP_FORTRAN_PATH}/*.FOR")
 
-# Check if any of the source files include the statement "include 'commons.for'"; 
-# this indicates the use of REFPROP 9.1 or earlier, which has a case-sensitivity problem
-# on non-windows systems with the includes that needs to be repaired
-set(FIX_91 OFF)
-foreach (source ${APP_SOURCES})
-  FILE(READ ${source} CONTENTS)
-  string(FIND "${CONTENTS}" "include 'commons.for'" found_INDEX)
-  if (${found_INDEX} GREATER 0)
-    set(FIX_91 ON)
-    break()
-  endif()
-endforeach()
+if(${REFPROP_SOURCE_AUTOFIX})
 
-if (FIX_91 AND (NOT FIX_91_COMPLETE))
-
-  message(STATUS "REFPROP version <= 9.1 identified by presence of include \"'commons.for'\"; copying locally and fixing include statement")
-
-  # Copy each of the files into a temporary directory within the build directory
-  foreach (source ${APP_SOURCES})
-    FILE(COPY ${source} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/FORTRAN_temp")
-  endforeach()
-
-  # Collect the source files from the containing directory
-  file(GLOB APP_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/FORTRAN_temp/*.FOR")
-
-  # Do some munging of the FORTRAN files for version 9.1.0 to fix case sensitivity
-  # of some of the include statements
+  # Check if any of the source files include the statement "include 'commons.for'"; 
+  # this indicates the use of REFPROP 9.1 or earlier, which has a case-sensitivity problem
+  # on non-windows systems with the includes that needs to be repaired
+  set(FIX_91 OFF)
   foreach (source ${APP_SOURCES})
     FILE(READ ${source} CONTENTS)
-    string(REPLACE "include 'commons.for'" "include 'COMMONS.FOR'" CONTENTS ${CONTENTS})
-    string(REPLACE "include 'comtrn.for'" "include 'COMTRN.FOR'" CONTENTS ${CONTENTS})
-    FILE(WRITE ${source} ${CONTENTS})
+    string(FIND "${CONTENTS}" "include 'commons.for'" found_INDEX)
+    if (${found_INDEX} GREATER 0)
+      set(FIX_91 ON)
+      break()
+    endif()
   endforeach()
+  
+  if (FIX_91 AND (NOT FIX_91_COMPLETE))
+  
+    message(STATUS "REFPROP version <= 9.1 identified by presence of include \"'commons.for'\"; copying locally and fixing include statement")
+  
+    # Copy each of the files into a temporary directory within the build directory
+    foreach (source ${APP_SOURCES})
+      FILE(COPY ${source} DESTINATION "${CMAKE_CURRENT_BINARY_DIR}/FORTRAN_temp")
+    endforeach()
+  
+    # Collect the source files from the containing directory
+    file(GLOB APP_SOURCES "${CMAKE_CURRENT_BINARY_DIR}/FORTRAN_temp/*.FOR")
+  
+    # Do some munging of the FORTRAN files for version 9.1.0 to fix case sensitivity
+    # of some of the include statements
+    foreach (source ${APP_SOURCES})
+      FILE(READ ${source} CONTENTS)
+      string(REPLACE "include 'commons.for'" "include 'COMMONS.FOR'" CONTENTS ${CONTENTS})
+      string(REPLACE "include 'comtrn.for'" "include 'COMTRN.FOR'" CONTENTS ${CONTENTS})
+      FILE(WRITE ${source} ${CONTENTS})
+    endforeach()
+  
+    message(STATUS "Fixing of FORTRAN files complete. Compilation ready.")
+  
+    set(FIX_91_COMPLETE ON CACHE BOOL "Done fixing fortran files")
+  endif()
 
-  message(STATUS "Fixing of FORTRAN files complete. Compilation ready.")
-
-  set(FIX_91_COMPLETE ON CACHE BOOL "Done fixing fortran files")
-endif()
-
+endif(${REFPROP_SOURCE_AUTOFIX})
+  
 # Remove the files COMMONS.FOR and COMTRN.FOR from the list of files to be compiled for REFPROP < 9.1.1
 foreach (source ${APP_SOURCES})
   string(FIND "${source}" "COMMONS.FOR" found_INDEX)
