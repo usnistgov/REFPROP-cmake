@@ -25,6 +25,11 @@ SET (REFPROP_FORTRAN_PATH
         CACHE STRING
         "The path to the directory of the FORTRAN source files")
 
+	SET (REFPROP_ADDITIONAL_LINK_FLAGS
+		""
+		CACHE STRING
+		"Additional link flags for linking the library")
+
 	SET (REFPROP_SOURCE_AUTOFIX
 		TRUE
 		CACHE BOOL
@@ -234,7 +239,7 @@ if (WIN32)
   set_target_properties(${NAME} PROPERTIES PREFIX "")
 endif()
 
-set_target_properties(${NAME} PROPERTIES APPEND_STRING PROPERTY LINK_FLAGS "${REFPROP_LINK_FLAGS}")
+set_target_properties(${NAME} PROPERTIES APPEND_STRING PROPERTY LINK_FLAGS "${REFPROP_LINK_FLAGS} ${REFPROP_ADDITIONAL_LINK_FLAGS}")
 
 # Build the REFPROP.h header file to go with this shared library
 add_custom_command(TARGET ${NAME}
