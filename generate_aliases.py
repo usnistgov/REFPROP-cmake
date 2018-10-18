@@ -18,8 +18,12 @@ def tokenize(path_to_REFPROP_lib_h, path_to_FORTRAN):
                        """, re.VERBOSE)
 	
     PASS_CMN_tokens = []
-    for line in open(os.path.join(path_to_FORTRAN,"PASS_FTN.FOR"), 'r').readlines():
-        PASS_CMN_tokens += re.findall(a, line)
+    try:
+        for line in open(os.path.join(path_to_FORTRAN,"PASS_FTN.FOR"), 'r').readlines():
+            PASS_CMN_tokens += re.findall(a, line)
+    except:
+	for line in open(os.path.join(path_to_FORTRAN,"DLLFILES","PASS_FTN.FOR"), 'r').readlines():
+            PASS_CMN_tokens += re.findall(a, line)
 
     with open(path_to_REFPROP_lib_h, 'r') as fp:
         lines = fp.readlines()
