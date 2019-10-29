@@ -37,8 +37,14 @@ Once the shared library has been build, you will need to place it somewhere that
 * If you want to force a 32-bit build (I'm looking at you Excel 2016 on Mac), you can do:
 
     ``cmake .. -DREFPROP_32BIT=ON``
+    
+    --Note forcing a 32-bit build is no longer required for Office 365--
 
-* On OSX, it seems you need to use the ``homebrew`` version of ``gcc`` and ``gfortran``.  You can obtain homebrew versions of gcc and gfortran with ``brew install gcc`` once homebrew is installed
+* You have to use numpy <= 1.15.4 as 1.16+ will not build the .dylib file
+
+* You will also need to provide a copy of 'libquadmath.a' in your REFPROP-cmake folder. You can do this by installing gcc9 via MacPorts, navigating to the library folder for gcc9 (/opt/local/lib/gcc9), and copying the file to REFPROP-cmake.
+
+* The 'FORTRAN' folder copied to REFPROP-cmake has to be in all caps
 
 ## General Notes
 
