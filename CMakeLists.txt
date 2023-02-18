@@ -190,7 +190,7 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
          DESTINATION .)
     message(STATUS "Copied libquadmath.a here.")
 
-    if (REFPROP_OSX_STATIC_LINK)
+    if (REFPROP_OSX_STATIC_LINK OR MINGW)
 
       # Now we construct the flags to be passed to linker
       set(REFPROP_LINK_FLAGS "${REFPROP_LINK_FLAGS} -static -static-libgfortran -static-libgcc ")
