@@ -51,10 +51,10 @@ SET (REFPROP_NO_PYTHON
   CACHE BOOL
   "Disable all use of Python")
 
-SET (REFPROP_OSX_STATIC_LINK
+SET (REFPROP_STATIC_LINK
   FALSE
   CACHE BOOL
-  "Statically link the standard libraries")
+  "Statically link the standard libraries for OSX or MINGW builds")
 
 
 get_filename_component(REFPROP_FORTRAN_ABS_PATH "${REFPROP_FORTRAN_PATH}"
@@ -190,7 +190,7 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
          DESTINATION .)
     message(STATUS "Copied libquadmath.a here.")
 
-    if (REFPROP_OSX_STATIC_LINK)
+    if (REFPROP_STATIC_LINK)
 
       # Now we construct the flags to be passed to linker
       set(REFPROP_LINK_FLAGS "${REFPROP_LINK_FLAGS} -static -static-libgfortran -static-libgcc ")
