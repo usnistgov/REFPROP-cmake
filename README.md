@@ -58,6 +58,12 @@ The solution is to force cmake to use the brewed python:
 cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE:FILEPATH=/usr/local/bin/python3
 ```
 
+* If you want statically-linked system libraries when compiling on OSX, to improve, but not guarantee, that a binary built on one machine will run on another, you can define:
+
+```
+cmake .. -DREFPROP_OSX_STATIC_LINK=ON
+```
+
 ## General Notes
 
 * Platforms other than windows (and sort of OSX) are CASE-SENSITIVE!  The folder ``fortran`` is not the same as ``FORTRAN``
@@ -92,10 +98,9 @@ cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE:FILEPATH=/usr/local/bin/
 
 * If you want to make the Intel runtime dynamically linked into the shared library (this is necessary in order to load hundreds of copies of REFPROP in memory with the REFPROP-manager (see https://github.com/usnistgov/REFPROP-manager)), define the CMake flag ``-DREFPROP_DYNAMIC_RUNTIME=ON``.  The default is to statically link the runtime, which is the right answers for most users and use cases.
 
-* If you want statically-linked system libraries when compiling on OSX or with MINGW on Windows, to improve, but not guarantee, that a binary built on one machine will run on another, you can define:
-
+* If you want statically-linked system libraries when compiling with MINGW, to improve, but not guarantee, that a binary built on one machine will run on another, you can define:
 ```
-cmake .. -DREFPROP_STATIC_LINK=ON
+cmake .. -DREFPROP_MINGW_STATIC_LINK=ON
 ```
 
 ## Instructions for MINGW builds on windows
