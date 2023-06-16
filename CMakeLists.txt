@@ -1,4 +1,4 @@
-cmake_minimum_required (VERSION 3.0)
+cmake_minimum_required (VERSION 3.5)
 project (REFPROP)
 enable_language(Fortran)
 
@@ -120,8 +120,8 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   endif()
 
   # gfortran
-  set (CMAKE_Fortran_FLAGS_RELEASE "-funroll-all-loops -fno-f2c -O3 ${ARCH_FLAG}")
-  set (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -Wuninitialized -O0 -g ${ARCH_FLAG}")
+  set (CMAKE_Fortran_FLAGS_RELEASE " -Wuninitialized -Wall -funroll-all-loops -fno-f2c -O3 ${ARCH_FLAG}")
+  set (CMAKE_Fortran_FLAGS_DEBUG   "-fno-f2c -Wuninitialized -Wall -O0 -g ${ARCH_FLAG}")
 
   # if(MINGW)
   #   set(CMAKE_Fortran_FLAGS_RELEASE "${CMAKE_Fortran_FLAGS_RELEASE} -mrtd")
