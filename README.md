@@ -38,25 +38,29 @@ Public domain, (though REFPROP itself is not public domain)
 
 Once the shared library has been build, you will need to place it somewhere that your operating system knows where to find it.  On windows, that would be on the ``PATH`` environment variable.  On OSX, that would be one of the default shared library locations (see [apple docs](https://developer.apple.com/library/content/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/UsingDynamicLibraries.html) ).
 
-## OSX Notes
+## OSX/MacOS Notes
 
-* If you have an M1 chip, the arm64 architecture is not supported. Thus you must use the gfortran from homebrew and build for x86_64 and use Rosetta2 emulation. The flags you want are something like:
+* If you have an M1(+) chip, check whether your gcc/gfortran is set to use `x86_64` or `arm64`. Two options have been tested and are summarized here.
+
+1. Use the gfortran from homebrew and build for x86_64 and use Rosetta2 emulation. The flags you want are something like:
 
     ``cmake .. -DCMAKE_FORTRAN_COMPILER=/path/to/gfortran -DREFPROP_X8664=ON``
 
-* If you want to force a 32-bit build (I'm looking at you Excel 2016 on Mac), you can do:
+    * If you want to force a 32-bit build (I'm looking at you Excel 2016 on Mac), you can do:
 
     ``cmake .. -DREFPROP_32BIT=ON``
 
-* On OSX, it seems you need to use the ``homebrew`` version of ``gcc`` and ``gfortran``.  You can obtain homebrew versions of gcc and gfortran with ``brew install gcc`` once homebrew is installed
+    * You can obtain homebrew versions of gcc and gfortran with ``brew install gcc`` once homebrew is installed
 
-* On OSX, ``cmake --build .`` with homebrewed python and vanilla system python both installed fails because ``find_package(PythonInterp)``, called by ``cmake .. -DCMAKE_BUILD_TYPE=Release``, picks up the system python rather than the brewed python, as evident from an examination of ``CMakeCache.txt`` and ``build.make``.
+    * On OSX, ``cmake --build .`` with homebrewed python and vanilla system python both installed fails because ``find_package(PythonInterp)``, called by ``cmake .. -DCMAKE_BUILD_TYPE=Release``, picks up the system python rather than the brewed python, as evident from an examination of ``CMakeCache.txt`` and ``build.make``.
 
-The solution is to force cmake to use the brewed python:
+    The solution is to force cmake to use the brewed python:
 
-```
-cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE:FILEPATH=/usr/local/bin/python3
-```
+    ```
+    cmake .. -DCMAKE_BUILD_TYPE=Release -DPYTHON_EXECUTABLE:FILEPATH=/usr/local/bin/python3
+    ```
+
+2. Use gcc/gfortran from Macports. Install Macports gcc and select it by `sudo port install gccXX` and `sudo port select gcc mp-gccXX` where XX is the version of gcc, e.g., `12`. Then you can use the same non-Mac-specific install instructions as described above in the "Instructions" section.
 
 * If you want statically-linked system libraries when compiling on OSX, to improve, but not guarantee, that a binary built on one machine will run on another, you can define:
 
