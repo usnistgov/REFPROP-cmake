@@ -316,6 +316,22 @@ foreach (source ${APP_SOURCES})
   endif()
 endforeach()
 
+# Grep out the version from the source
+FILE(READ "${REFPROP_FORTRAN_PATH}/SETUP.FOR" CONTENTS)
+if (NOT CONTENTS)
+  message(FATAL_ERROR "Cannot load SETUP.FOR for extraction of version")
+endif()
+# SET(CONTENTS "      iVerNo=1001020\n        hVerNo='10.0.1.20'\n    yadda")
+# message(STATUS "Version: ${VERSIONSTRING}")
+# message(STATUS ${CONTENTS})
+string(REGEX MATCH "hVerNo='([0-9\\.a-z]+)'\n" VERSIONSTRING ${CONTENTS})
+if (VERSIONSTRING)
+  SET(REFPROP_VERSION ${CMAKE_MATCH_1})
+  message(STATUS "Version: ${REFPROP_VERSION}")
+else()
+  message(STATUS "Unable to extract the version")
+endif()
+
 # Add the .DEF file if needed
 list(APPEND APP_SOURCES "${DEF_FILE}")
 
@@ -324,6 +340,12 @@ add_library(${NAME} SHARED ${APP_SOURCES} )
 if (WIN32)
   # Don't add a 'lib' prefix to the shared library if windows
   set_target_properties(${NAME} PROPERTIES PREFIX "")
+  # And force the suffix to be .DLL
+  set_target_properties(${NAME} PROPERTIES SUFFIX ".DLL")
+endif()
+
+if (REFPROP_VERSION)
+  set_target_properties(${NAME} PROPERTIES VERSION ${REFPROP_VERSION} SOVERSION ${REFPROP_VERSION})
 endif()
 
 set_target_properties(${NAME} PROPERTIES APPEND_STRING PROPERTY LINK_FLAGS "${REFPROP_LINK_FLAGS} ${REFPROP_ADDITIONAL_LINK_FLAGS}")
