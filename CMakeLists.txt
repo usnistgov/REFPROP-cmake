@@ -184,26 +184,30 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   # for gfortran: https://gcc.gnu.org/bugzilla/show_bug.cgi?id=46539
   # For Mac systems
   if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin" OR MINGW)
-    execute_process(COMMAND gfortran ${ARCH_FLAG} -print-file-name=libquadmath.a
+    
+    if (REFPROP_OSX_STATIC_LINK OR REFPROP_MINGW_STATIC_FLAG)
+
+      set(CMAKE_Fortran_FLAGS_RELEASE "")
+      set(CMAKE_Fortran_FLAGS_DEBUG   "")
+
+      execute_process(COMMAND gfortran ${ARCH_FLAG} -print-file-name=libquadmath.a
                     RESULT_VARIABLE LIBQUADMATH_CHECK_RESULT
                     OUTPUT_VARIABLE LIBQUADMATH_CHECK_OUTPUT
                     ERROR_VARIABLE LIBQUADMATH_CHECK_OUTPUT
                     )
-    string(STRIP ${LIBQUADMATH_CHECK_OUTPUT} LIBQUADMATH_PATH)
-    message(STATUS "Path to libquadmath.a:" "${LIBQUADMATH_PATH}")
-    file(COPY ${LIBQUADMATH_PATH}
-         DESTINATION .)
-    message(STATUS "Copied libquadmath.a here.")
-
-    if (REFPROP_OSX_STATIC_LINK OR REFPROP_MINGW_STATIC_FLAG)
+      string(STRIP ${LIBQUADMATH_CHECK_OUTPUT} LIBQUADMATH_PATH)
+      message(STATUS "Path to libquadmath.a:" "${LIBQUADMATH_PATH}")
+      file(COPY ${LIBQUADMATH_PATH}
+           DESTINATION .)
+      message(STATUS "Copied libquadmath.a here.")
 
       # Now we construct the flags to be passed to linker
-      set(REFPROP_LINK_FLAGS "${REFPROP_LINK_FLAGS} -static -static-libgfortran -static-libgcc ")
+      set(REFPROP_LINK_FLAGS "${REFPROP_LINK_FLAGS}  -static-libgfortran -static-libgcc ")
 
       # This, in concert with the libquadmath logic above, ensures that libquadmath is statically
       # linked rather than being dynamically linked.  We want a static link so that the shared
       # library can be distributed to users without gfortran
-      set(REFPROP_LINK_FLAGS "${REFPROP_LINK_FLAGS} -L. ")
+      set(REFPROP_LINK_FLAGS "${REFPROP_LINK_FLAGS} -L . ")
     endif()
 
     # Do not set RPATH for OSX
