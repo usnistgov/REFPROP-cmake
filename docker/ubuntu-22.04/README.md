@@ -7,12 +7,12 @@ Copy the FORTRAN files for REFPROP into folder ``RP10src`` in this folder
 
 In this folder, build the image
 ```
-docker built -t rpub18 .
+docker build -t rpub22 .
 ```
 
-Go up two directories, and bash into the container, mounting the sources into the container
+Bash into the container, mounting the sources into the container
 ```
-docker run -it -v"$(CWD)":/shared  -t rpub18 bash
+docker run -it -v "$(pwd)":/shared -t rpub22 bash
 ```
 
 Then inside the container:
