@@ -7,8 +7,6 @@ Why you should use this build system:
 * The windows-style mixed-case symbols are exported on all platforms (for instance there is **ALWAYS** a ``SETUPdll`` symbol, which means you can write a clean cross-platform interface).  This magic is achieved with export aliases.
 * You can easily point the repo at a different version of the REFPROP sources, allowing for building/testing several versions of REFPROP in parallel
 
-Brought to you by Ian Bell, NIST, ian.bell@nist.gov
-
 ## Getting help
 
 Open an issue: https://github.com/usnistgov/REFPROP-cmake/issues/new
@@ -22,21 +20,37 @@ Public domain, (though REFPROP itself is not public domain)
 * Python (See below about disabling the use of Python)
     * ``six``  (Often packaged automatically (e.g., with Anaconda), or you can pip install it at the command prompt: ``pip install six``)
     * ``numpy`` (make sure that this prints something reasonable at the command prompt: ``python -c "import numpy; print(numpy.__version__)"``).  See below about disabling the use of numpy
-* A fortran compiler
-* Cmake
-* git
+* CMake
+* VS Build Tools (on Windows)
+* A Fortran compiler
+    * Intel oneAPI (ifx) (just the compiler is fine)
+    * GNU Fortran (GFortran)
+        * Follow the MINGW build instructions below
+* Git
 
 ## Instructions
 
-1. Do a recursive(!) clone of this repository (e.g. ``git clone --recursive https://github.com/usnistgov/REFPROP-cmake.git``)
+1. Do a recursive(!) clone of this repository, e.g.,  
+   ``git clone --recursive https://github.com/usnistgov/REFPROP-cmake.git``
 2. Copy the FORTRAN directory from your REFPROP installation into the root of your checked out code (or see below about using the path directly)
-3. Open a console in the root of the cloned repository
-4. ``mkdir build``
-5. ``cd build``
-6. ``cmake .. -DCMAKE_BUILD_TYPE=Release``
-7. ``cmake --build .``
+3. Add the path to your Fortran compiler to your system PATH variable. On Windows, add to the Path environment variable, which is usually:
+    * Intel oneAPI: ``C:\Program Files (x86)\Intel\oneAPI\compiler\latest\bin``
+4. Open a console in the root of the cloned repository. On Windows, open as admin the "Intel oneAPI command prompt for Intel 64 and Visual Studio 2022"
+5. Make a working directory:   
+  ``mkdir build``
+6. Move into that directory:   
+  ``cd build``
+7. Configure the build system:
+   1. Linux:  
+   ``cmake .. -DCMAKE_BUILD_TYPE=Release``  
 
-Once the shared library has been build, you will need to place it somewhere that your operating system knows where to find it.  On windows, that would be on the ``PATH`` environment variable.  On OSX, that would be one of the default shared library locations (see [apple docs](https://developer.apple.com/library/content/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/UsingDynamicLibraries.html) ).
+   2. Windows:  
+      (substitute the path to your ifx.exe):  
+   ``cmake .. -G "Visual Studio 17 2022" -DCMAKE_BUILD_TYPE=Release -DCMAKE_Fortran_COMPILER="C:/Program Files (x86)/Intel/oneAPI/compiler/latest/bin/ifx.exe"``
+8. Build the DLL:   
+  ``cmake --build . --config Release``
+
+Once the shared library has been build, you will need to place it somewhere that your operating system knows where to find it.  On Windows, that would be on the ``PATH`` environment variable.  On OSX, that would be one of the default shared library locations (see [apple docs](https://developer.apple.com/library/content/documentation/DeveloperTools/Conceptual/DynamicLibraries/100-Articles/UsingDynamicLibraries.html) ).
 
 ## OSX/MacOS Notes
 
@@ -64,13 +78,13 @@ Once the shared library has been build, you will need to place it somewhere that
 
 * If you want statically-linked system libraries when compiling on OSX, to improve, but not guarantee, that a binary built on one machine will run on another, you can define:
 
-```
-cmake .. -DREFPROP_OSX_STATIC_LINK=ON
-```
+  ```
+  cmake .. -DREFPROP_OSX_STATIC_LINK=ON
+  ```
 
 ## General Notes
 
-* Platforms other than windows (and sort of OSX) are CASE-SENSITIVE!  The folder ``fortran`` is not the same as ``FORTRAN``
+* Platforms other than Windows (and sort of OSX) are CASE-SENSITIVE!  The folder ``fortran`` is not the same as ``FORTRAN``
 
 * If you don't want to copy the FORTRAN directory to the root of the checked out code, you can alternatively pass the cmake flag ``REFPROP_FORTRAN_PATH`` as in something like:
     
@@ -78,7 +92,7 @@ cmake .. -DREFPROP_OSX_STATIC_LINK=ON
 
   If the path has spaces in it, you need to quote-escape the path
 
-* If you do not want to, or cannot, get a numpy version (especially on Red Hat based linux distros) that will allow you to do this at the command line:
+* If you do not want to, or cannot, get a numpy version (especially on Red Hat based Linux distros) that will allow you to do this at the command line:
 
     ``python -m numpy.f2py -c "import numpy"``
 
@@ -88,119 +102,66 @@ cmake .. -DREFPROP_OSX_STATIC_LINK=ON
 
   which will result in the C/C++ header not being generated.  It is highly recommended to find a working numpy version.
 
-  If you absolutely cannot get access to Python, you can also define ``REFPROP_NO_PYTHON``, which will disable all use of Python, but this will disable the alias generation, so the only symbols that will be exported will be the default symbols for your compiler, which could be a problem for non-Intel compilers.  
-
-* On windows, if you want to use Intel Fortran + Visual Studio, you can change the generator, with something like:
-
-    ``cmake .. -G "Visual Studio 11 2012 Win64"``
-
-  Run ``cmake --help`` to see a complete list of supported generators (not all of which will support FORTRAN)
-
-  When building with a Visual Studio generator, you will want to ensure that you get a Release build, which is ensured by passing the flag ``--config Release`` to the build command, something like:
-
-    ``cmake --build . --config Release``
+ * If you absolutely cannot get access to Python, you can also define ``REFPROP_NO_PYTHON``, which will disable all use of Python, but this will disable the alias generation, so the only symbols that will be exported will be the default symbols for your compiler, which could be a problem for non-Intel compilers.  
 
 * If you want to make the Intel runtime dynamically linked into the shared library (this is necessary in order to load hundreds of copies of REFPROP in memory with the REFPROP-manager (see https://github.com/usnistgov/REFPROP-manager)), define the CMake flag ``-DREFPROP_DYNAMIC_RUNTIME=ON``.  The default is to statically link the runtime, which is the right answers for most users and use cases.
 
-* If you want statically-linked system libraries when compiling with MINGW, to improve, but not guarantee, that a binary built on one machine will run on another, you can define:
-```
-cmake .. -DREFPROP_MINGW_STATIC_LINK=ON
-```
 
-## Instructions for MINGW builds on windows
+## Instructions for MINGW builds on Windows
 
 It is possible to use a fully open-source build system on windows to compile REFPROP.  This is enabled by the use of the MINGW compiler system.
 
 To get started from a clean windows installation, you will need:
-* [cmake](https://cmake.org/download/): When you install, it is recommended to add the install directory to the ``PATH`` system variable
-* [MINGW](https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe): You may want to run the installer twice, the first time selecting the ``i686`` architecture (for 32-bit compilation), and the second time, selecting the ``x86_64`` architecture (for 64-bit compilation)
-* [miniconda](https://conda.io/miniconda.html):  This installs a minimal python setup, along with with the ``conda`` package manager (use the 64-bit python 3.6 one).  You probably want to add conda and python to the system PATH variable when asked in the installer. Once it is installed, install numpy with : ``conda install numpy`` at the command line.  If you require administrative rights to install to the default Anaconda installation location, open an administrative shell by typing ``cmd`` in the windows start menu search, right-clicking on cmd.exe, and selecting "Run as Administrator"
-* [git](https://git-scm.com/download/win)
+* [CMake](https://cmake.org/download/): When you install, it is recommended to add the install directory to the ``PATH`` system variable
+* [MINGW](https://sourceforge.net/projects/mingw-w64/files/Toolchains%20targetting%20Win32/Personal%20Builds/mingw-builds/installer/mingw-w64-install.exe): You may want to run the installer twice, the first time selecting the ``i686`` architecture (for 32-bit compilation), and the second time, selecting the ``x86_64`` architecture (for 64-bit compilation).
 
-Then to set up your shell, at the command prompt do:
-```
-set PATH=D:\Software\mingw\bin;%PATH%
-```
-or put the path to wherever the MINGW compiler has been installed.
+  After installation:
+    * Add the installation directory to your system PATH variable  
+      (e.g. ``C:\msys64\mingw64\bin`` for the 64-bit installation)
+    * Open the MSYS2 MINGW64 terminal and install the following packages via:
+      ```
+      pacman -S mingw-w64-x86_64-cmake
+      pacman -S mingw-w64-x86_64-make
+      pacman -S mingw-w64-x86_64-gcc
+      pacman -S mingw-w64-x86_64-gcc-fortran
+      ```
+* [Miniconda](https://conda.io/miniconda.html):  This installs a minimal python setup, along with with the ``conda`` package manager (use the 64-bit python 3.6 one).  You probably want to add conda and python to the system PATH variable when asked in the installer. Once it is installed, install numpy with : ``conda install numpy`` at the command line.  If you require administrative rights to install to the default Anaconda installation location, open an administrative shell by typing ``cmd`` in the windows start menu search, right-clicking on cmd.exe, and selecting "Run as Administrator"
+* [Git](https://git-scm.com/download/win)
 
-Check out the git sources with:
-```
-git clone --recursive https://github.com/usnistgov/REFPROP-cmake
-```
-Move into that directory:
-```
-cd REFPROP-cmake
-```
-Make a working directory
-```
-mkdir build
-```
-Move into that directory
-```
-cd build
-```
-Configure the build system
-```
-cmake .. -DREFPROP_FORTRAN_PATH=R:/FORTRAN -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
-```
-and build the DLL
-```
-cmake --build .
-```
-That's it!
+1. Open the MSYS2 MINGW64 terminal
 
-Or, all in a tidy batch file that clones the repo, does the build, and cleans up after itself... 
-
-You will want to save these contents in a ``.bat`` file and run it from the command prompt, passing it ``32`` for a 32-bit build generating REFPROP.DLL, or ``64`` for a 64-bit build, generating the ``REFPRP64.DLL`` file.
-
-Here is the contents of ``build_dll.bat``
-```
-@echo off
-
-REM Call this script like: build_dll.bat 32
-REM for a 32-bit build, or build_dll.bat 64 for a 64-bit build
-
-REM --- THESE ARE THE PATHS YOU MAY NEED TO MODIFY ---
-set PATH_32BIT=D:\Software\mingw-w64\i686-7.2.0-posix-dwarf-rt_v5-rev0\mingw32\bin
-set PATH_64BIT=D:\Software\mingw-w64\x86_64-7.2.0-posix-seh-rt_v5-rev0\mingw64\bin
-set FORTRAN_PATH=R:/FORTRAN
-
-REM --------- You should not need to touch anything below this line ------------
-
-@setlocal enabledelayedexpansion
-
-if "%1" == "64" (
-    set MINGW_PATH=%PATH_64BIT%
-    set BITNESS=64
-) 
-if "%1" == "32" (
-    set MINGW_PATH=%PATH_32BIT%
-    set BITNESS=32
-) 
-if "%MINGW_PATH%" == "" (
-    echo An invalid bitness was selected, valid values are "64" or "32"
-    pause
-    exit /b
-)
-if not exist "%MINGW_PATH%" (
-    echo The path to MINGW bin folder is invalid
-    pause
-    exit /b
-)
-set "PATH=%MINGW_PATH%;%PATH%"
-
-git clone --recursive https://github.com/usnistgov/REFPROP-cmake
-cd REFPROP-cmake
-mkdir build
-cd build
-cmake .. -DREFPROP_FORTRAN_PATH=%FORTRAN_PATH% -G "MinGW Makefiles" -DCMAKE_BUILD_TYPE=Release
-cmake --build .
-cd ../..
-if "%BITNESS%" == "32" (
-    copy REFPROP-cmake\build\REFPROP.DLL REFPROP.DLL
-)
-if "%BITNESS%" == "64" (
-    copy REFPROP-cmake\build\REFPRP64.DLL REFPRP64.DLL
-)
-rmdir /Q /S REFPROP-cmake
-```
+2. Check out the git sources with:
+    ```
+    git clone --recursive https://github.com/usnistgov/REFPROP-cmake
+    ```
+3. Move into that directory:
+    ```
+    cd REFPROP-cmake
+    ```
+4. Make a working directory:
+    ```
+    mkdir build_gfortran
+    ```
+5. Move into that directory:
+    ```
+    cd build_gfortran
+    ```
+6. Configure the build system (substituting the actual paths):
+    ```
+    cmake .. -G "MinGW Makefiles" \
+      -DCMAKE_BUILD_TYPE=Release \
+      -DCMAKE_C_COMPILER="C:/msys64/mingw64/bin/gcc.exe" \
+      -DCMAKE_CXX_COMPILER="C:/msys64/mingw64/bin/g++.exe" \
+      -DCMAKE_Fortran_COMPILER="C:/msys64/mingw64/bin/gfortran.exe" \
+      -DCMAKE_MAKE_PROGRAM="C:/msys64/mingw64/bin/mingw32-make.exe" \
+      -DREFPROP_MINGW_STATIC_LINK=ON \
+      -DREFPROP_ADDITIONAL_LINK_FLAGS="C:/msys64/mingw64/lib/libquadmath.a -Wl,--whole-archive C:/msys64/mingw64/lib/libwinpthread.a -Wl,--no-whole-archive"
+    ```
+7. Build the DLL:
+    ```
+    cmake --build . --config Release
+    ```
+8. Verify there are no dependencies besides KERNEL32.dll and msvcrt.dll by running:
+    ```
+    objdump -p REFPRP64.DLL | grep "DLL Name"
+    ```
