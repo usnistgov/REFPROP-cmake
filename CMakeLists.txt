@@ -3,7 +3,7 @@ project (REFPROP)
 enable_language(Fortran)
 
 if (NOT REFPROP_NO_PYTHON)
-  find_package (PythonInterp)
+  find_package (Python COMPONENTS Interpreter Development)
 endif()
 
 #######################################
