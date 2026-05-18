@@ -235,6 +235,7 @@ elseif (Fortran_COMPILER_NAME MATCHES "ifort.*")
       set (CMAKE_Fortran_FLAGS_DEBUG   "-g -00 -static-intel -qopenmp -qopenmp-link=static")
     else()
       # Force visual studio to statically link the c runtime to avoid dependency on MSVCRXXX.dll
+      message(STATUS "Forcing static link of C runtime for ifort on windows...")
       set (CMAKE_Fortran_FLAGS_RELEASE "-f77rtl -O3 /threads /libs:static /MT")
       set (CMAKE_Fortran_FLAGS_DEBUG   "-f77rtl -debug:full -Od /libs:static /MT")
     endif()
@@ -255,7 +256,7 @@ elseif (CMAKE_Fortran_COMPILER_ID MATCHES "IntelLLVM")
       set (CMAKE_Fortran_FLAGS_DEBUG   "-g -O0 -static-intel -fopenmp -static-openmp")
     else() # Windows
       # Force visual studio to statically link the c runtime to avoid dependency on MSVCRXXX.dll
-      set (CMAKE_Fortran_FLAGS_RELEASE "-f77rtl -O3 /threads /libs:static /MT")
+      message(STATUS "Forcing static link of C runtime for IntelLLVM on windows...")
       set (CMAKE_Fortran_FLAGS_DEBUG   "-f77rtl -debug:full -Od /libs:static /MT")
     endif()
   endif()
