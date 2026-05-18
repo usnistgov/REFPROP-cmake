@@ -129,8 +129,8 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   # endif()
 
   if (NOT REFPROP_NO_PYTHON)
-    if (NOT EXISTS ${PYTHON_EXECUTABLE})
-      message(FATAL_ERROR "Specified Python executable does not exist: ${PYTHON_EXECUTABLE}")
+    if (NOT EXISTS ${Python_EXECUTABLE})
+      message(FATAL_ERROR "Specified Python executable does not exist: ${Python_EXECUTABLE}")
     endif()
 
     # Now we need to determine whether gfortran uses --defsym or -alias to
@@ -150,7 +150,7 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
     message(STATUS "DEFSYM_FLAG: ${DEFSYM_FLAG}")
 
     # The base command to be used to extract the aliases in a form that the compiler can consume
-    set(BUILD_COMMAND ${PYTHON_EXECUTABLE} -u "${CMAKE_CURRENT_SOURCE_DIR}/generate_aliases.py" --mangling setupdll_ -O "${CMAKE_CURRENT_BINARY_DIR}/aliases_string.txt" --FORTRAN-path "${REFPROP_FORTRAN_ABS_PATH}" ${DEFSYM_FLAG})
+    set(BUILD_COMMAND ${Python_EXECUTABLE} -u "${CMAKE_CURRENT_SOURCE_DIR}/generate_aliases.py" --mangling setupdll_ -O "${CMAKE_CURRENT_BINARY_DIR}/aliases_string.txt" --FORTRAN-path "${REFPROP_FORTRAN_ABS_PATH}" ${DEFSYM_FLAG})
 
     # If mingw, we need to add the DEF file to make sure that the mixed-case symbols are exported to the DLL
     if (MINGW)
@@ -377,8 +377,8 @@ set_target_properties(${NAME} PROPERTIES APPEND_STRING PROPERTY LINK_FLAGS "${RE
 target_include_directories(${NAME} PUBLIC "${REFPROP_FORTRAN_ABS_PATH}")
 
 if (NOT REFPROP_NO_NUMPY AND (NOT REFPROP_NO_PYTHON))
-  if (NOT EXISTS ${PYTHON_EXECUTABLE})
-      message(FATAL_ERROR "Specified Python executable does not exist: ${PYTHON_EXECUTABLE}")
+  if (NOT EXISTS ${Python_EXECUTABLE})
+      message(FATAL_ERROR "Specified Python executable does not exist: ${Python_EXECUTABLE}")
     endif()
   # Build the REFPROP.h header file to go with this shared library
   # See for instance https://samthursfield.wordpress.com/2015/11/21/cmake-dependencies-between-targets-and-files-and-custom-commands/\
@@ -387,7 +387,7 @@ if (NOT REFPROP_NO_NUMPY AND (NOT REFPROP_NO_PYTHON))
   if (EXISTS "${REFPROP_FORTRAN_ABS_PATH}/DLLFILES/PASS_FTN.FOR")
     set(HEADER_FORTRAN_PATH "${REFPROP_FORTRAN_ABS_PATH}/DLLFILES")
   endif()
-  set(HEADER_COMMAND "${PYTHON_EXECUTABLE}" -u "${CMAKE_CURRENT_SOURCE_DIR}/externals/REFPROP-headers/generate_header.py" --FORTRAN-path "${HEADER_FORTRAN_PATH}" --python-exe "${PYTHON_EXECUTABLE}")
+  set(HEADER_COMMAND "${Python_EXECUTABLE}" -u "${CMAKE_CURRENT_SOURCE_DIR}/externals/REFPROP-headers/generate_header.py" --FORTRAN-path "${HEADER_FORTRAN_PATH}" --python-exe "${Python_EXECUTABLE}")
   add_custom_command(
     OUTPUT
       REFPROP.h.stamp
