@@ -185,7 +185,7 @@ if (Fortran_COMPILER_NAME MATCHES "gfortran.*")
   # For Mac systems
   if ("${CMAKE_SYSTEM_NAME}" MATCHES "Darwin" OR MINGW)
     
-    if (REFPROP_OSX_STATIC_LINK OR REFPROP_MINGW_STATIC_FLAG)
+    if (REFPROP_OSX_STATIC_LINK OR REFPROP_MINGW_STATIC_LINK)
 
       set(CMAKE_Fortran_FLAGS_RELEASE "")
       set(CMAKE_Fortran_FLAGS_DEBUG   "")
