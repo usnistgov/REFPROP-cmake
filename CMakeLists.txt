@@ -257,6 +257,7 @@ elseif (CMAKE_Fortran_COMPILER_ID MATCHES "IntelLLVM")
     else() # Windows
       # Force visual studio to statically link the c runtime to avoid dependency on MSVCRXXX.dll
       message(STATUS "Forcing static link of C runtime for IntelLLVM on windows...")
+      set (CMAKE_Fortran_FLAGS_RELEASE "-f77rtl -O3 /threads /libs:static /MT /fp:precise")
       set (CMAKE_Fortran_FLAGS_DEBUG   "-f77rtl -debug:full -Od /libs:static /MT")
     endif()
   endif()
